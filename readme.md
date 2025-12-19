@@ -66,7 +66,10 @@ start()启动整个微前端。
 }
 ```
 
-例如这里就是对应一份资源 setting，然后 scripts 是里面的静态资源，在 activeRule 里面通过第一个/setting 去确定他是 setting 应用，然后第二个也是"/setting/micro-test"说明也是在 setting 应用下但是资源是另一个项目下的页面资源`https://cysx-yikai.oss-cn-beijing.aliyuncs.com/static/micro-test/1.0.4/js/manifest.js`这样应用维度变得非常灵活，他不在是一份静态资源的应用，而是可以通过路径的第一位 appcode 去保证多分份资源在一个应用下。这有什么用呢？
+例如这里就是对应一份资源 setting，然后 scripts 是里面的静态资源，在 activeRule 里面通过第一个/setting 去确定他是 setting 应用，然后第二个也是"/setting/micro-test"说明也是在 setting 应用下但是资源是另一个项目下的页面资源`https://cysx-yikai.oss-cn-beijing.aliyuncs.com/static/micro-test/1.0.4/js/manifest.js`这样应用维度变得非常灵活，他不在是一份静态资源的应用，而是可以通过路径的第一位 appcode 去保证多分份资源在一个应用下。
+
+**这有什么用呢？**
+
 比如说客服业务下有一个客服工作台，还有运营业务上有一个运营工作台，但是有的时候客服需要去查看的运营活动，这个时候前台只能通过在客服工作台下 iframe 嵌套运营工作台，这样也行但是 iframe 会有很多硬隔离的问题，比如弹窗不居中，加载慢等等。微前端支持预加载，并且能够解决 iframe 带来的问题。这个时候我们可以以/kefu 作为 appcode，在运营的静态资源中注册一个`activeRule: ['/kefu/yunying/page']`这样就能在一个应用下加载不同资源的页面。注意应用维度其实就是我们抽象出来的一层而已。
 
 实现 js entry 过程中需要对子应用打包进行一些约束，不是说不能使用 html entry，html entry 很浪费资源，你要去起一个 web 服务器，js entry 你只需要将应用打包后的静态文件上传到 cdn 即可。同时子应用打包还需要满足 qiankun 的要求，比如 UMD 全局标量，还有生命周期函数挂载到 window 下
@@ -121,35 +124,40 @@ const config = {
 };
 ```
 
-1. **library: <packageName>是做什么的**
+### 1. **library: <packageName>是做什么的**
+___
 
 打包输出会把你的 bundle 作为一个“库”导出，导出名为 packageName（例如 micro-setting）。
 
 在浏览器中会变成 window["micro-setting"] = /_ 导出的模块对象 _/（具体取决于 libraryTarget）。
 
-qiankun 需要它的原因
+**qiankun 需要它的原因**
 
 qiankun 在默认场景下通过主页面动态加载子应用的 script，然后需要拿到子应用暴露出来的生命周期对象（bootstrap/mount/unmount/...）。
 
 使用 library + umd，子应用会以一个可访问的全局变量暴露，主应用可以通过 window[packageName] 或者 qiankun 内部机制找到并调用这些生命周期函数。
+___
 
-2. **libraryTarget: "umd"是做什么的**
+### 2. **libraryTarget: "umd"是做什么的**
+___
 
 指定构建产物的模块格式为 UMD（Universal Module Definition），即同时兼容 CommonJS、AMD、以及在浏览器上通过全局变量访问的方式。
 
-这样打包后的文件既能被 require()、也能被 define()、也能被 <script> 方式加载并挂到 window。
+这样打包后的文件既能被 require()、也能被 define()、也能被 `<script>` 方式加载并挂到 window。
 
-qiankun 需要它的原因
+**qiankun 需要它的原因**
 
-qiankun 的加载器在不同场景（本地开发/线上/SSR 边缘情况）可能需要以通用方式访问打包产物。UMD 给了最大的兼容性：主应用用 <script> 加载后，子应用仍能以全局变量暴露生命周期。
+qiankun 的加载器在不同场景（本地开发/线上/SSR 边缘情况）可能需要以通用方式访问打包产物。UMD 给了最大的兼容性：主应用用 `<script>` 加载后，子应用仍能以全局变量暴露生命周期。
 
 简单地说：UMD 保证“主应用无论怎么把脚本插进来，都能拿到子应用导出的 API”
+___
 
-3. **chunkLoadingGlobal: \webpackJsonp\_${packageName}``**
+### 3. **chunkLoadingGlobal: \webpackJsonp\_${packageName}``**
+___
 
 （在旧 webpack 里叫 jsonpFunction、或 chunkLoadingGlobal）
 
-是做什么的
+**是做什么的**
 
 当构建产生 异步 chunk（动态 import 分片） 时，runtime 会用一个全局数组/函数来注册和“push”新 chunk 到页面上。
 
@@ -157,13 +165,17 @@ qiankun 的加载器在不同场景（本地开发/线上/SSR 边缘情况）可
 
 chunkLoadingGlobal 可以把这个默认名字改成唯一名字 webpackJsonp\_<packageName>。
 
-qiankun 需要它的原因
+
+**qiankun 需要它的原因**
+
 
 在微前端场景下，多个子应用同时加载在同一页面，如果所有子应用都使用相同的 chunk-loading 全局名就会互相冲突（覆盖或错用彼此的 chunk 表），导致模块加载失败或加载到错误的模块体。
 
 通过把这个名字与 packageName 绑定，每个子应用维护自己的异步 chunk 注册表，互不干扰。
+___
 
-4. **globalObject: "window"是做什么的**
+### 4. **globalObject: "window"是做什么的**
+___
 
 构建产物在生成 UMD 或 runtime 时，会引用“全局对象”来挂载变量（例如 this、globalThis、window）。
 
@@ -179,7 +191,7 @@ qiankun 需要它的原因
 
 **这四项配置的核心目的就是让子应用变成一个独立、可通过全局安全访问、并且不会与其它子应用在异步 chunk 与运行时代码上互相污染的模块——而这正是 qiankun 在同一页面运行多个微前端时最担心的问题。**
 
-**🧩 一、runtimeChunk 是什么？**
+**🧩 一、webpack打包配置之runtimeChunk 是什么？**
 
 在 webpack / rspack 中，runtimeChunk 表示「把运行时代码（runtime）」从每个 bundle 中抽离出来，单独生成一个文件，比如 manifest.js。
 
@@ -240,7 +252,7 @@ qiankun 的设计理念是：
 
 子应用必须完全独立、可单独运行、不会污染主应用或其他子应用。
 
-但 qiankun 的加载方式是「动态插入 <script> 标签」，
+但 qiankun 的加载方式是「动态插入 `<script>` 标签」，
 即多个微应用的 JS 实际上都在主页面上执行。
 
 ⚠️ 所以，如果你不抽离 runtime：
@@ -340,6 +352,8 @@ RUN npm config set registry https://registry.npmmirror.com \
 # 拷贝源代码
 COPY . .
 
+RUN pnpm install
+
 # 打包（Rsbuild）
 RUN pnpm run build
 
@@ -357,7 +371,7 @@ CMD ["echo", "✅ Rsbuild 打包完成，产物已在 /output/dist"]
 ```
 
 采用 node18 镜像，设置工作目录/app 打包完成之后从 docker 容器中将目录复制到当前服务器目录下
-这一步没啥说的。
+这一步没啥说的。其中注意的是有时候pnpm 版本不一样会导致的安装依赖报错，pnpm-lock文件无法正常进行安装
 
 ### 打包后文件上传
 
@@ -427,3 +441,9 @@ sudo mv ossutilmac64 /usr/local/bin/ossutil64
 ```
 
 上传之后就有对应的静态文件了，部署过程就是改下版本就好了。
+
+## 脚手架
+项目中有一个比较简单的脚手架，主要是对整个项目目录进行抽离，支持快速创建子应用模板
+
+## 架构层面
+qiankun从仓库维度组建整个应用架构变成了从页面维度组建整个应用结构，这个灵活度大大提升了，仓库代码是一个一个组织协同维护的，但是在页面层面借助qiankun能力可以自由组织起一个个的页面。再通过一些超级入口，比如把公司所有的b端项目全部放在一个超级入口，之前所有部署在各个域下的项目全都迁移在qiankun架构下，就可以自由组织应用。系统 => 应用 => 页面
