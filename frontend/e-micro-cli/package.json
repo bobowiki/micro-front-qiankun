@@ -1,0 +1,41 @@
+{
+  "name": "e-micro-cli",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "e-micro": "bin/index.js"
+  },
+  "main": "dist/index.js",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "bin",
+    "package.json",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "rslib build",
+    "check": "biome check --write",
+    "dev": "rslib build --watch",
+    "format": "biome format --write"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.2.3",
+    "@rslib/core": "^0.16.1"
+  },
+  "private": true,
+  "dependencies": {
+    "@rsbuild/core": "^1.5.17",
+    "@rsbuild/plugin-react": "^1.4.1",
+    "chalk": "^5.6.2",
+    "commander": "^14.0.2",
+    "execa": "^9.6.0",
+    "fs-extra": "^11.3.2",
+    "inquirer": "^12.10.0",
+    "ora": "8"
+  }
+}
