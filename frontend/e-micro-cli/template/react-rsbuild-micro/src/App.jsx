@@ -1,13 +1,13 @@
-import { createBrowserRouter } from "react-router";
-import { RouterProvider } from "react-router/dom";
-import Demo from "./pages/demo";
+import { createBrowserRouter } from 'react-router';
+import { RouterProvider } from 'react-router/dom';
+import Demo from './pages/demo';
 
-import "./App.css";
+import './App.css';
 
 const App = (props) => {
-  const { basePath = "" } = props;
-  const router = createBrowserRouter([{ path: "/", element: <Demo /> }], {
-    basename: basePath ? `${basePath}/${__SOURCE_PREFIX__}` : "",
+  const { basePath = '' } = props;
+  const router = createBrowserRouter([{ path: '/', element: <Demo /> }], {
+    basename: `${basePath}/${__SOURCE_PREFIX__}`,
   });
   return <RouterProvider router={router} />;
 };

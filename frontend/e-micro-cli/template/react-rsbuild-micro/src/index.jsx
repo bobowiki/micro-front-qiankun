@@ -1,20 +1,18 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App";
-const code = window.location.pathname.split("/")[1];
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+const code = window.location.pathname.split('/')[1];
 
 let root;
 
 function render(props = {}) {
   const { container, isDev } = props;
   root = ReactDOM.createRoot(
-    container
-      ? container.querySelector("#appsub")
-      : document.getElementById("root")
+    container ? container.querySelector('#appsub') : document.getElementById('root')
   );
   root.render(
     <React.StrictMode>
-      <App basePath={isDev ? "" : code} />
+      <App basePath={isDev ? '' : code} />
     </React.StrictMode>
   );
 }
@@ -24,7 +22,7 @@ function render(props = {}) {
  * 通常我们可以在这里做一些全局变量的初始化，比如不会在 unmount 阶段被销毁的应用级别的缓存等。
  */
 export async function bootstrap() {
-  console.log("react app bootstraped");
+  console.log('react app bootstraped');
 }
 
 /**
@@ -37,7 +35,7 @@ export async function mount(props) {
 /**
  * 应用每次 切出/卸载 会调用的方法，通常在这里我们会卸载微应用的应用实例
  */
-export async function unmount(props) {
+export async function unmount() {
   // ReactDOM.unmountComponentAtNode(
   //   props.container ? props.container.querySelector('#root') : document.getElementById('root'),
   // );
@@ -48,7 +46,7 @@ export async function unmount(props) {
  * 可选生命周期钩子，仅使用 loadMicroApp 方式加载微应用时生效
  */
 export async function update(props) {
-  console.log("update props", props);
+  console.log('update props', props);
 }
 
 if (!window.__POWERED_BY_QIANKUN__) {
