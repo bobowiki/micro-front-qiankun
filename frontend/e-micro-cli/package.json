@@ -15,7 +15,9 @@
     "dist",
     "bin",
     "package.json",
-    "README.md"
+    "README.md",
+    "template",
+    "rsbuild.config.main.js"
   ],
   "scripts": {
     "build": "rslib build",
@@ -27,12 +29,13 @@
     "@biomejs/biome": "2.2.3",
     "@rslib/core": "^0.16.1"
   },
-  "private": true,
   "dependencies": {
     "@rsbuild/core": "^1.5.17",
     "@rsbuild/plugin-react": "^1.4.1",
+    "@rspack/core": "^1.6.8",
     "chalk": "^5.6.2",
     "commander": "^14.0.2",
+    "e-micro-cli": "link:../../../../../../Library/pnpm/global/5/node_modules/e-micro-cli",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.2",
     "inquirer": "^12.10.0",

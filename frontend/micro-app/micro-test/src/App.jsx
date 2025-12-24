@@ -3,7 +3,7 @@ import { RouterProvider } from "react-router/dom";
 import Demo from "./pages/demo";
 import { lazy, Suspense } from "react";
 
-import "./App.css";
+// import "./App.css";
 
 const Demo = lazy(() => import("./pages/demo"));
 

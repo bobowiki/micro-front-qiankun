@@ -9,6 +9,7 @@ import path from "path";
 const __filename = fileURLToPath(import.meta.url);
 // 当前目录路径
 const __dirname = path.dirname(__filename);
+const pkgRoot = path.resolve(__dirname, '..');
 
 export async function init(projectName) {
   try {
@@ -45,7 +46,7 @@ export async function init(projectName) {
         ],
       },
     ]);
-    const templateDir = path.resolve(__dirname, "../template", template);
+    const templateDir = path.resolve(pkgRoot, "template", template);
     const pkgPath = path.join(templateDir, "package.json");
     if (fs.existsSync(pkgPath)) {
       const pkg = await fs.readJson(pkgPath);
