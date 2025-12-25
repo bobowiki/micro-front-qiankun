@@ -13,7 +13,7 @@ function render(props = {}) {
   );
   root.render(
     <React.StrictMode>
-      <App basePath={isDev ? '' : code} />
+      <App basePath={isDev ? '' : code} {...props} />
     </React.StrictMode>
   );
 }
@@ -30,6 +30,7 @@ export async function bootstrap() {
  * 应用每次进入都会调用 mount 方法，通常我们在这里触发应用的渲染方法
  */
 export async function mount(props) {
+  // 1. 先渲染子应用
   render(props);
 }
 
